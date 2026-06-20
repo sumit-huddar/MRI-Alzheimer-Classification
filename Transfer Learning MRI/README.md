@@ -11,7 +11,7 @@ fed to two models:
 
 | Model    | Type | Notes |
 | :------- | :--- | :---- |
-| **VGG16**   | True transfer learning | Frozen ImageNet base + new head, then optional fine-tuning of the last block. |
+| **VGG16**   | True transfer learning | Frozen ImageNet base + new classification head. |
 | **AlexNet** | Trained from scratch | Keras has **no** pretrained AlexNet, so it's the from-scratch baseline (same as the CIFAR notebook). |
 
 ## Data
@@ -44,7 +44,6 @@ classes is ≈ 0.33.
 | Model | Test Accuracy | Macro F1 | ROC-AUC (OvR) |
 | :--- | :---: | :---: | :---: |
 | VGG16 (transfer) | 0.399 | 0.39 | 0.568 |
-| VGG16 (fine-tuned) | 0.399 | 0.39 | 0.568 |
 | AlexNet (scratch) | 0.336 | 0.32 | 0.519 |
 
 ![Model comparison](comparison.png)
@@ -65,10 +64,6 @@ classes is ≈ 0.33.
   where the small data subset and the difficulty of AD/CN/MCI from single slices limit performance.
 - Pretrained VGG16 edges out the from-scratch AlexNet, but neither separates the classes well
   (ROC-AUC barely above 0.5).
-- **Known issue:** the fine-tuning cell did not actually unfreeze any layers in this run (Keras
-  warned "model does not have any trainable weights" and the metrics match the frozen-base model),
-  so the "fine-tuned" row is effectively a duplicate. The unfreeze logic needs fixing before that
-  row is meaningful.
 - Likely paths to improvement: use more scans, sample more (and better-localised) slices, add
   augmentation, and balance/aggregate slice predictions back to the scan level.
 
