@@ -27,10 +27,16 @@ test/test/{AD, CN, MCI}
 ## Pipeline
 
 1. Load each volume with `nibabel`, take `SLICES_PER_VOLUME` central axial slices.
-2. Per-slice min-max scale to `0–255`, stack to 3 channels, resize to `224×224`.
-3. VGG16 path uses `vgg16.preprocess_input`; AlexNet path scales to `[0, 1]`.
-4. Train, then evaluate with shared `plot_history` / `evaluate_predictions` helpers
+2. *(Optional, `USE_FULL_PREPROCESSING = True`)* run each volume through a neuroimaging
+   standardization pipeline first — **N4 bias-field correction → skull stripping
+   (`antspynet.brain_extraction`) → affine registration to the MNI152 template** (ANTsPy).
+3. Per-slice min-max scale to `0–255`, stack to 3 channels, resize to `224×224`.
+4. VGG16 path uses `vgg16.preprocess_input`; AlexNet path scales to `[0, 1]`.
+5. Train, then evaluate with shared `plot_history` / `evaluate_predictions` helpers
    (confusion matrix, classification report, OvR ROC-AUC) for comparison with the CIFAR results.
+
+> The full skull-strip + MNI pipeline is off by default (it's slow, ~20–40 s/scan); the results
+> below use the raw-slice path. Flip `USE_FULL_PREPROCESSING` to run the standardized pipeline.
 
 Example axial slices, one per class:
 
