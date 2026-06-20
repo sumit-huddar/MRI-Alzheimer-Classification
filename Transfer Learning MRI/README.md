@@ -32,6 +32,46 @@ test/test/{AD, CN, MCI}
 4. Train, then evaluate with shared `plot_history` / `evaluate_predictions` helpers
    (confusion matrix, classification report, OvR ROC-AUC) for comparison with the CIFAR results.
 
+Example axial slices, one per class:
+
+![Sample slices](sample_slices.png)
+
+## Results
+
+Run with `MAX_SCANS_PER_CLASS=60`, `SLICES_PER_VOLUME=5` (895 test slices). Chance level for 3
+classes is ≈ 0.33.
+
+| Model | Test Accuracy | Macro F1 | ROC-AUC (OvR) |
+| :--- | :---: | :---: | :---: |
+| VGG16 (transfer) | 0.399 | 0.39 | 0.568 |
+| VGG16 (fine-tuned) | 0.399 | 0.39 | 0.568 |
+| AlexNet (scratch) | 0.336 | 0.32 | 0.519 |
+
+![Model comparison](comparison.png)
+
+**VGG16 (transfer) — training curves and confusion matrix**
+
+![VGG16 transfer history](vgg16_transfer_history.png)
+![VGG16 transfer confusion](vgg16_transfer_confusion.png)
+
+**AlexNet (scratch) — training curves and confusion matrix**
+
+![AlexNet history](alexnet_history.png)
+![AlexNet confusion](alexnet_confusion.png)
+
+### Observations
+
+- Both models land close to chance (0.33) — consistent with the 3D-CNN experiments in this repo,
+  where the small data subset and the difficulty of AD/CN/MCI from single slices limit performance.
+- Pretrained VGG16 edges out the from-scratch AlexNet, but neither separates the classes well
+  (ROC-AUC barely above 0.5).
+- **Known issue:** the fine-tuning cell did not actually unfreeze any layers in this run (Keras
+  warned "model does not have any trainable weights" and the metrics match the frozen-base model),
+  so the "fine-tuned" row is effectively a duplicate. The unfreeze logic needs fixing before that
+  row is meaningful.
+- Likely paths to improvement: use more scans, sample more (and better-localised) slices, add
+  augmentation, and balance/aggregate slice predictions back to the scan level.
+
 ## Tech Stack
 
 Python · TensorFlow / Keras · PyTorch (resize) · Nibabel · NumPy · Matplotlib · scikit-learn · seaborn
